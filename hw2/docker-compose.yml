@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+    webserver:
+        image: webserver
+        container_name: webserver
+        build:
+            context: .
+            dockerfile: webserver/Dockerfile
+        #expose port -- host:container (not specifing host port -> random assign! )
+        ports:
+            - "80:5000"
+        #volume src path - relevant(must include ./) dest path - need absolute path!!
+        volumes:
+            - ./webserver:/opt
+        entrypoint: python3 /opt/app.py
+        networks:
+            web_net:
+                aliases:
+                - webserver
+    mongo:
+        image: mongo
+        container_name: mongo
+        restart: always
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: root
+        ports:
+            - "27017:27017"
+ #       volumes:
+            #- ./mongo/data:/data/db
+        networks:
+            web_net:
+                aliases:
+                - mongo
+                ipv4_address: 172.18.0.3
+
+
+networks:
+    web_net:
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.18.0.0/16
