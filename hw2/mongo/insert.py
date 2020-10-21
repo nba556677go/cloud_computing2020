@@ -12,7 +12,7 @@ try:
 except:
     print("connection error!")
     exit()
-
+print("start insertion...")
 dbnames = client.list_database_names()
 if "country" in dbnames:
     client.drop_database("country")
