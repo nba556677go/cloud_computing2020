@@ -41,10 +41,6 @@
   <value>hdfs://hdfs-namenode:9000</value>
 </property>
 
-<property>
-  <name>JAVA_HOME</name>
-  <value>${JAVA_HOME}</value>
-</property>
 
 <property>
     <name>hadoop.proxyuser.root.hosts</name>
