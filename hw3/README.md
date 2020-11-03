@@ -19,6 +19,7 @@ enter hdfs-namenode container, and add the access_log from /opt/mapreduce
 ```cd /opt/mapreduce``` 
 
 ```bash runPython.sh``` 
+
 the output file will be in /logcount/output directory. this script will get output file from hdfs and store in /opt/mapreduce/python.log, so if you want to see the output, just type in 
 
 ```cat python.log``` 
