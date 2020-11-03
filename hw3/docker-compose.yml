@@ -58,6 +58,26 @@ services:
       - hdfs-namenode
     networks:
       testing_net:
+
+  hdfs-datanode-2:
+    container_name: hdfs-datanode-2
+    hostname: hdfs-datanode-2
+    image: hdfs-datanode
+    build:
+      context: .
+      dockerfile: hdfs-datanode/Dockerfile
+    environment:
+      - NAMENODE_HOSTNAME=hdfs-namenode
+#    mem_limit: 7680m
+    ports:
+      - "8044:8042"
+    volumes:
+      - ./volumes/hdfs-datanode-2:/usr/local/hadoop/tmp/dfs/data
+    depends_on:
+      - hdfs-namenode
+    networks:
+      testing_net:
+
 networks:
   testing_net:
     ipam:

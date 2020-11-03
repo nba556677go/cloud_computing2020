@@ -12,7 +12,7 @@ sshpass -p screencast ssh-copy-id root@localhost
 rsync -avhe ssh root@hdfs-namenode:/$HADOOP_HOME/etc/hadoop/*-site.xml /$HADOOP_HOME/etc/hadoop/
 
 # Start Datanode
-#hadoop-daemon.sh start datanode
+hadoop-daemon.sh start datanode
 #yarn-daemons.sh start nodemanager
 
 # Run in daemon mode, don't exit
