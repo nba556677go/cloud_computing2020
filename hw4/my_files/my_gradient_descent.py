@@ -13,7 +13,7 @@ import numpy as np
 from pyspark import SparkConf, SparkContext
 from pyspark.sql import SparkSession
 #global
-D = 4
+D = 5
 
 class myGD:
     def __init__(self, train_data, SPARK = True):
@@ -39,17 +39,13 @@ class myGD:
                     sys.exit()
 
                 self.train_spark = self.feature_extraction(train_data)
-            else:#load from normalized txt 
+            else:#load from serialized data  
                 self.train_spark = train_data
             
         else:    #not spark
             self.train_x, self.train_y = self.feature_extraction(train_data)
     @staticmethod
     def sigmoid(z):
-        
-        if z.any() == False:
-            z = 1e-12
-        print("z", z)
         res = 1 / (1.0 + np.exp(-z))
         return np.clip(res, 1e-8, 1-(1e-8))
     
@@ -105,12 +101,13 @@ class myGD:
         
 
         if self.spark:
+            #create feature RDD
             features = self.sc.parallelize(features)
-            print(features.count())
-            
+            #print(features.count())
+                        
             #labels = self.sc.parallelize(labels)
             a = np.array(features.collect())
-            #print(a.shape)
+            print(a.shape)
             #b = np.array(labels.collect())
             #print(b)
             #input()
@@ -134,18 +131,13 @@ class myGD:
 
             self._lambdda = regularize
             w = np.zeros(self.feature_size - 1)# - label
-            #sgrad = np.zeros(self.feature_size - 1)
-            #w = self.sc.parallelize(w)
-            #sgrad = self.sc.parallelize(sgrad)        
-            #bcast_train_data = self.train_spark
-        
             for i in range(1, iteration + 1):
                 w = self.train_spark.map(lambda _data: myGD.Sparkstep(_data, w, l_rate)).reduce(myGD.add)
                 #Sparkstep()
-                #if (iteration % 50 == 0):
+                if (i % 20 == 0):
                     #err = self.train_spark.map(lambda d: self.Sparkpredict(d, w)).reduce(myGD.add)
-                err = self.Sparkpredict(w)
-                print('[iteration {:5d}] - training loss: {:.5f}, error_rate: {:.18f}'.format(i, self._loss, err))
+                    err = self.Sparkpredict(w)
+                    print('[iteration {:5d}] - training loss: {:.5f}, error_rate: {:.18f}'.format(i, self._loss, err))
             #final prediction
             print("final prediction...")
             #np.save("logistic"+str(iteration)+"-regularize-"+str(self._lambdda)+".npy" , self._w)
@@ -161,7 +153,7 @@ class myGD:
             #training
             for i in range(1, iteration + 1):
                 self.step(self.train_x , self.train_y)
-                if (iteration % 50 == 0):
+                if (i % 20 == 0):
                     err = self.predict(self.train_x , self.train_y)
                     print('[iteration {:5d}] - training loss: {:.5f}, error_rate: {:.18f}'.format(i, self._loss, err))
             #final prediction
@@ -208,17 +200,11 @@ class myGD:
         x = data[:, 1:] 
         y = data[:, 0]
         #print("x", x)
-        print("w", w)
+        #print("w", w)
         func = myGD.sigmoid(np.dot(x , w))
-        
-        #print("func", func)
-        #update
         grad = -np.dot(x.transpose(), (y - func))
-        #grad = ((1.0 / (1.0 + np.exp(-y * x.dot(w))) - 1.0) * y * x.T)
-        #sgrad += grad**2
-        #ada = np.sqrt(sgrad)
         w = w - l_rate*grad
-        print("w after update:", w)
+        #print("w after update:", w)
         return w
 
     @staticmethod
@@ -292,6 +278,8 @@ def preprocess(textfile, outfile = "processed.txt"):
             f.write(labels[i])
             for j in range(features.shape[1]):
                 f.write(','+ str(features[i][j]))
+            #add bias
+            f.write(",1")
             if i != features.shape[0] - 1:
                 f.write("\n")
     return outfile

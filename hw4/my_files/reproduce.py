@@ -16,7 +16,7 @@ def getSparkContext():
     Gets the Spark Context
     """
     conf = (SparkConf()
-         .setMaster(MASTER_URL) # run on local
+         .setMaster("local") # run on master/local
          .setAppName("Logistic Regression") # Name of App
          .set("spark.executor.memory", "1g")) # Set 1 gig of memory
     sc = SparkContext(conf = conf) 
