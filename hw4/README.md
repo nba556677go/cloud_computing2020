@@ -1,8 +1,9 @@
 ## start sparkcluster 
-```docker-compose up```
+```docker-compose up```  
 this spark cluster includes 1 master and two workers
 ## init  
-```docker exec -it spark-master bash  
+```
+docker exec -it spark-master bash  
 bash my_files/init.sh 
 ```
 ## reproduce results
