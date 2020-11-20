@@ -7,15 +7,17 @@ docker exec -it spark-master bash
 bash my_files/init.sh 
 ```
 ## reproduce results
-```docker exec -it spark-master bash  
-   cd my_files  
-   python reproduce.py data_banknote_authentication.txt
+```
+docker exec -it spark-master bash  
+cd my_files  
+python reproduce.py data_banknote_authentication.txt
 ```
 
 ## my gradient descend
-python my_gradient_descent.py <input data> <iteraion>  
-```docker exec -it spark-master bash  
-   cd my_files  
-   python my_gradient_descent.py data_banknote_authentication.txt 100
+python my_gradient_descent.py [input data] [iteration]  
+```
+docker exec -it spark-master bash  
+cd my_files  
+python my_gradient_descent.py data_banknote_authentication.txt 100
 ```
  
