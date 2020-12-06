@@ -1,0 +1,78 @@
+version: '3'
+
+services:
+    webserver:
+        image: webserver
+        container_name: webserver
+        build:
+            context: .
+            dockerfile: webserver/Dockerfile
+        #expose port -- host:container (not specifing host port -> random assign! )
+        ports:
+            - "5000:5000"
+        #volume src path - relevant(must include ./) dest path - need absolute path!!
+        volumes:
+            - ./webserver:/opt
+        entrypoint: python3 /opt/app.py
+        networks:
+            web_net:
+                aliases:
+                - webserver
+    mongo:
+        image: mongo
+        container_name: mongo
+        restart: always
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: root
+        ports:
+            - "27017:27017"
+        volumes:
+            - ./mongo/data:/data/db
+        networks:
+            web_net:
+                aliases:
+                - mongo
+                ipv4_address: 172.18.0.3
+    
+    mongo-express:
+        image: mongo-express
+        container_name: mongo-express
+        depends_on:
+            - mongo
+        environment:
+            ME_CONFIG_MONGODB_SERVER: mongo
+            ME_CONFIG_MONGODB_ADMINUSERNAME: root
+            ME_CONFIG_MONGODB_ADMINPASSWORD: root
+        ports:
+            - "8081:8081"
+
+        networks:
+            web_net:
+                aliases:
+                - mongo-express
+    frontend:
+        image: frontend
+        container_name: frontend
+        build:
+            context: .
+            dockerfile: frontend/Dockerfile
+        #expose port -- host:container (not specifing host port -> random assign! )
+        ports:
+            - "3000:3000"
+        #volume src path - relevant(must include ./) dest path - need absolute path!!
+        volumes:
+            - ./frontend:/app
+            
+        networks:
+            web_net:
+                aliases:
+                - webserver        
+            
+
+networks:
+    web_net:
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.18.0.0/16

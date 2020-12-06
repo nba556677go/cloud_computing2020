@@ -1,0 +1,11 @@
+.navbar {
+    height: 5rem;
+    text-align: center;
+    margin-top: 2rem;
+    background-color: #1A1A1F;
+}
+
+.navbar h1 {
+    text-align: center;
+    color: white;
+}
