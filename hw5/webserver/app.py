@@ -1,21 +1,21 @@
 
 from flask import Flask, request, render_template, jsonify, Response
 #from flask_classful import FlaskView,route
-
+from flask_cors import CORS
 import json
 import pprint
 
 from api import MongoAPI
 
 app = Flask(__name__)
-
+CORS(app)
 
 
 @app.route('/')
 def my_form():
 
     #return jsonify(data)
-    return render_template('index.html')
+    return 'This is my API server'
 
 # @app.route('/getdata')
 # def getdata():
@@ -27,7 +27,7 @@ def my_form():
 #     #print("got input text:", processed_text)
 #     return Response(data, mimetype="application/json", status=200)
 
-#http://140.112.28.115:5000/getdata?id=0016
+#http://140.112.28.115:5000/getdata?id=龍山國小
 @app.route('/getdata')
 def querydata():
     station_id = request.args.get('id')
