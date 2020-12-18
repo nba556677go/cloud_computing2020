@@ -1,11 +1,12 @@
 import React from 'react'
 import axios from 'axios'
-import MyChart from '../components/MyChart'
+import MyChart, {MyDistrictChart} from '../components/MyChart'
+
 
 class MyDBSelect extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { station: 'stationA', show: false, stationData: null, refresh: true }
+    this.state = { station: 'stationA', show: false, districtData: null,  refresh: true }
     //set all stations
     this.stations = null
     
@@ -26,7 +27,26 @@ class MyDBSelect extends React.Component {
     })
     .then(response => this.stationData = response.data )
     .then(() => { console.log(this.stationData) })
-    .then(() => this.setState({ station: e.target.value, show: true }) )
+    .then(() => this.setState({ station: e.target.value, stationData : this.staionData}) )
+    .then(() => {
+      axios({
+        method: 'get',
+        url: `http://140.112.28.115:5000/getdistrict?district=${this.stationData.district}`
+      })
+      .then(response => this.state.districtData = response.data )
+      .then(() => { console.log(this.state.districtData) })
+      .then(() => this.setState({show: true }) )
+    })
+   /*
+    axios({
+      method: 'get',
+      url: `http://140.112.28.115:5000/getdistrict?district=${this.state.stationData.district}`
+    })
+    .then(response => this.districtData = response.data )
+    .then(() => { console.log(this.districtData) })
+    .then(() => this.setState({show: true }) )
+*/
+
 
     
   }
@@ -38,10 +58,16 @@ class MyDBSelect extends React.Component {
     let selectStations = null
     
     if (this.state.show) {
+      let props = {
+                    district: this.stationData.district,
+                    data : this.state.districtData
+                  }
       display = (
         <div>
          
           <MyChart info={this.stationData}/>
+          
+          <MyDistrictChart data={props}/>
          
         </div>
       )

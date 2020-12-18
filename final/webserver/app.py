@@ -1,12 +1,22 @@
 
 from flask import Flask, request, render_template, jsonify, Response
+import threading
 #from flask_classful import FlaskView,route
 from flask_cors import CORS
 import json
 import pprint
 
+#import function
 from api import MongoAPI
 
+##########################################################################
+#mongo inserting thread
+MONGOIP = "172.19.0.3"
+URL = "https://tcgbusfs.blob.core.windows.net/blobyoubike/YouBikeTP.json"
+
+#maximum records stored in db
+MAXFILECNT = 20
+########################################################################
 app = Flask(__name__)
 CORS(app)
 
@@ -29,15 +39,22 @@ def my_form():
 
 #http://140.112.28.115:5000/getdata?id=龍山國小
 @app.route('/getdata')
-def querydata():
+def getdata():
     station_id = request.args.get('id')
     #print(station_id)
     #print(type(station_id))
-    mongo = MongoAPI(IP="172.18.0.3", DBname="myDB", collection="Youbike")
+    mongo = MongoAPI(IP="mongo", DBname="myDB", collection="Youbike")
     data = mongo.queryDBdata(station_id)
     print(data)
     return data
-
+#http://140.112.28.115:5000/getdistrict?district=信義區
+@app.route('/getdistrict')
+def getdistrict():
+    district = request.args.get('district')
+    mongo = MongoAPI(IP="mongo", DBname="myDB", collection="Youbike")
+    data = mongo.queryDistrict(district)
+    print(data)
+    return data  
 
 
 @app.route('/test/<iid>')
@@ -48,11 +65,13 @@ def test(iid):
 
 @app.route('/getallChID')
 def getallChID():
-    mongo = MongoAPI(IP="172.18.0.3", DBname="myDB", collection="Youbike")
+    mongo = MongoAPI(IP="mongo", DBname="myDB", collection="Youbike")
     data = mongo.getallChID()
     print(data)
     return data
 
 
 if __name__ == "__main__":
+    #DBinsert = threading.Thread(target=run)
+    #DBinsert.start()
     app.run(host='0.0.0.0', port = 5000, debug=True)

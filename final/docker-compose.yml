@@ -13,11 +13,26 @@ services:
         #volume src path - relevant(must include ./) dest path - need absolute path!!
         volumes:
             - ./webserver:/opt
-        entrypoint: python3 /opt/app.py
+        entrypoint: "python3 /opt/app.py" 
         networks:
             web_net:
                 aliases:
                 - webserver
+    mongo-insert:
+        image: webserver
+        container_name: mongo-insert
+        build:
+            context: .
+            dockerfile: webserver/Dockerfile
+        #volume src path - relevant(must include ./) dest path - need absolute path!!
+        volumes:
+            - ./webserver:/opt
+        #entrypoint: "python3 /opt/insert.py" 
+        networks:
+            web_net:
+                aliases:
+                - mongo-insert        
+
     mongo:
         image: mongo
         container_name: mongo
@@ -33,7 +48,7 @@ services:
             web_net:
                 aliases:
                 - mongo
-                ipv4_address: 172.18.0.3
+                ipv4_address: 172.19.0.20
     
     mongo-express:
         image: mongo-express
@@ -75,4 +90,4 @@ networks:
         ipam:
             driver: default
             config:
-                - subnet: 172.18.0.0/16
+                - subnet: 172.19.0.0/16

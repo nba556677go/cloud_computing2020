@@ -41,7 +41,7 @@ class MongoAPI:
         try:
             #db = self.client[DBname]
             #self.doc = db[collection]
-            cursor = self.doc.find({"chineseId": ID})
+            cursor = self.doc.find({"chineseId": ID}).sort("time", 1)
             #list_cursor =  list(cursor)
         except Exception as error:
             print(error)
@@ -51,7 +51,8 @@ class MongoAPI:
                     "chineseID" : "", 
                     "time": [],  
                     "totalBike" :"", 
-                    "availBike" : []
+                    "availBike" : [],
+                    "district" : ""
                     }
         
         for entry in cursor:
@@ -61,8 +62,9 @@ class MongoAPI:
             response["totalBike"] = entry["totalBike"]
             #response["availBike"].append(entry["availBike"])
             response["availBike"].append({"time" : int(entry["time"]), 
-                                            "availBike" : entry["availBike"]})
-        response["availBike"] = sorted(response["availBike"], key = lambda k : k["time"])
+                                            "availBike" : int(entry["availBike"])})
+            response["district"] = entry["district"]
+        #response["availBike"] = sorted(response["availBike"], key = lambda k : k["time"])
         response["time"] = [str(i["time"])[:4]+'/'+str(i["time"])[4:6]+'/'+str(i["time"])[6:8]+"-"+str(i["time"])[8:10]+":"+str(i["time"])[10:12] 
                             for i in response["availBike"]]
         
@@ -73,7 +75,36 @@ class MongoAPI:
        # json_data = dumps(list_cursor)
         #print(len(self.data))
         return response
-    
+    def queryDistrict(self, dist):
+        try:
+            pipeline = [
+                {"$match" :  { "district": dist}},
+                {"$sort" : {"time" : -1 }},
+                #{"$match" :  { "time": { "$max":"$time" }}}
+                {"$group": {  "_id": "$chineseId",
+                 "time": { "$first":"$time" }, "availBike": { "$first":"$availBike" } }},
+                {"$sort" : {"availBike" : -1 }}
+            ]
+
+            cursor = list(self.doc.aggregate(pipeline))
+            #list_cursor =  list(cursor)
+        except Exception as error:
+            print(error)
+            sys.exit()
+
+        response = {
+            "stationID" : [], 
+            "time": [],  
+            #"totalBike" : 0, 
+            "availBike" : []
+        }
+        #print(len(cursor))
+        for entry in cursor[:10]:
+            response["stationID"].append(entry["_id"])
+            response["time"].append(entry["time"][:4]+'/'+ entry["time"][4:6]+'/'+entry["time"][6:8]+"-"+entry["time"][8:10]+":"+entry["time"][10:12])
+            response["availBike"].append(entry["availBike"])
+
+        return response
     def getallChID(self):
         try:
             cursor = self.doc.find({})
@@ -89,9 +120,9 @@ class MongoAPI:
         
 
 if __name__ == "__main__":
-    api = MongoAPI(IP = "172.18.0.3")
-    data = api.queryDBdata("捷運內湖站(1號出口)")
-    #data = api.getallChineseID()
+    api = MongoAPI(IP = "172.19.0.20")
+    #data = api.queryDBdata("捷運內湖站(1號出口)")
+    data = api.queryDistrict("信義區")
     #data = api.getDBdata()
     print(data)
 
