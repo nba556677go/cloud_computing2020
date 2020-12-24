@@ -8,8 +8,8 @@ services:
             context: .
             dockerfile: webserver/Dockerfile
         #expose port -- host:container (not specifing host port -> random assign! )
-        ports:
-            - "5000:5000"
+        #ports:
+        #    - "5000:5000"
         #volume src path - relevant(must include ./) dest path - need absolute path!!
         volumes:
             - ./webserver:/opt
@@ -27,7 +27,7 @@ services:
         #volume src path - relevant(must include ./) dest path - need absolute path!!
         volumes:
             - ./webserver:/opt
-        #entrypoint: "python3 /opt/insert.py" 
+        entrypoint: "python3 /opt/insert.py" 
         networks:
             web_net:
                 aliases:
@@ -69,6 +69,7 @@ services:
     frontend:
         image: frontend
         container_name: frontend
+        hostname: frontend
         build:
             context: .
             dockerfile: frontend/Dockerfile
@@ -78,11 +79,22 @@ services:
         #volume src path - relevant(must include ./) dest path - need absolute path!!
         volumes:
             - ./frontend:/app
-            
         networks:
             web_net:
                 aliases:
-                - webserver        
+                - frontend  
+    nginx:
+        image: nginx:latest
+        container_name: nginx
+        hostname: nginx
+        volumes:
+            - ./nginx/conf:/etc/nginx
+        ports:
+            - "8800:80"
+        networks:
+            web_net:
+                aliases:
+                - nginx        
             
 
 networks:
@@ -91,3 +103,5 @@ networks:
             driver: default
             config:
                 - subnet: 172.19.0.0/16
+
+

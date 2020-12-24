@@ -7,7 +7,7 @@ MONGOIP = "172.19.0.20"
 URL = "https://tcgbusfs.blob.core.windows.net/blobyoubike/YouBikeTP.json"
 
 #maximum records stored in db
-MAXFILECNT = 3
+MAXFILECNT = 7
 
 def insert(fileID):
     try:

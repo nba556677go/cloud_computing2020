@@ -13,7 +13,7 @@ class MyDBSelect extends React.Component {
     //make sure total station list loaded first before rendering the first time
     axios({
       method: 'get',
-      url: `http://140.112.28.115:5000/getallChID`
+      url: `http://140.112.28.115:8800/bikeapi/getallChID`
     })
     .then(response => this.stations = response.data.chineseID )
     .then(() => {  this.setState({ refresh: true }) })//nees to call setstate to render page!!!
@@ -23,7 +23,7 @@ class MyDBSelect extends React.Component {
   handleSelect = (e) => {
     axios({
       method: 'get',
-      url: `http://140.112.28.115:5000/getdata?id=${e.target.value}`
+      url: `http://140.112.28.115:8800/bikeapi/getdata?id=${e.target.value}`
     })
     .then(response => this.stationData = response.data )
     .then(() => { console.log(this.stationData) })
@@ -31,7 +31,7 @@ class MyDBSelect extends React.Component {
     .then(() => {
       axios({
         method: 'get',
-        url: `http://140.112.28.115:5000/getdistrict?district=${this.stationData.district}`
+        url: `http://140.112.28.115:8800/bikeapi/getdistrict?district=${this.stationData.district}`
       })
       .then(response => this.state.districtData = response.data )
       .then(() => { console.log(this.state.districtData) })
