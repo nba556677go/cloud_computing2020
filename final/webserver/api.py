@@ -41,7 +41,7 @@ class MongoAPI:
         try:
             #db = self.client[DBname]
             #self.doc = db[collection]
-            cursor = self.doc.find({"chineseId": ID}).sort("time", 1)
+            cursor = list(self.doc.find({"chineseId": ID}).sort("time", 1))
             #list_cursor =  list(cursor)
         except Exception as error:
             print(error)
@@ -54,19 +54,35 @@ class MongoAPI:
                     "availBike" : [],
                     "district" : ""
                     }
-        
-        for entry in cursor:
-            response["stationID"] = entry["stationID"]
-            response["chineseID"] = entry["chineseId"]
-            #response["time"].append(entry["time"][:4]+'/'+entry["time"][4:6]+'/'+entry["time"][6:8]+"-"+entry["time"][8:10]+":"+entry["time"][10:12])
-            response["totalBike"] = entry["totalBike"]
-            #response["availBike"].append(entry["availBike"])
-            response["availBike"].append({"time" : int(entry["time"]), 
-                                            "availBike" : int(entry["availBike"])})
-            response["district"] = entry["district"]
-        #response["availBike"] = sorted(response["availBike"], key = lambda k : k["time"])
-        response["time"] = [str(i["time"])[:4]+'/'+str(i["time"])[4:6]+'/'+str(i["time"])[6:8]+"-"+str(i["time"])[8:10]+":"+str(i["time"])[10:12] 
-                            for i in response["availBike"]]
+        #output every 15 minutes
+        print("record counts", len(cursor))
+        print(cursor[-1])
+        if len(cursor) < 15:
+            for entry in cursor:
+                response["stationID"] = entry["stationID"]
+                response["chineseID"] = entry["chineseId"]
+                #response["time"].append(entry["time"][:4]+'/'+entry["time"][4:6]+'/'+entry["time"][6:8]+"-"+entry["time"][8:10]+":"+entry["time"][10:12])
+                response["totalBike"] = entry["totalBike"]
+                #response["availBike"].append(entry["availBike"])
+                response["availBike"].append({"time" : int(entry["time"]), 
+                                                "availBike" : int(entry["availBike"])})
+                response["district"] = entry["district"]
+            #response["availBike"] = sorted(response["availBike"], key = lambda k : k["time"])
+            response["time"] = [str(i["time"])[:4]+'/'+str(i["time"])[4:6]+'/'+str(i["time"])[6:8]+"-"+str(i["time"])[8:10]+":"+str(i["time"])[10:12] 
+                                for i in response["availBike"]]
+        else :
+            for entry in range(0, len(cursor), 15):
+                response["stationID"] = cursor[entry]["stationID"]
+                response["chineseID"] = cursor[entry]["chineseId"]
+                #response["time"].append(entry["time"][:4]+'/'+entry["time"][4:6]+'/'+entry["time"][6:8]+"-"+entry["time"][8:10]+":"+entry["time"][10:12])
+                response["totalBike"] = cursor[entry]["totalBike"]
+                #response["availBike"].append(entry["availBike"])
+                response["availBike"].append({"time" : int(cursor[entry]["time"]), 
+                                                "availBike" : int(cursor[entry]["availBike"])})
+                response["district"] = cursor[entry]["district"]
+            #response["availBike"] = sorted(response["availBike"], key = lambda k : k["time"])
+            response["time"] = [str(i["time"])[:4]+'/'+str(i["time"])[4:6]+'/'+str(i["time"])[6:8]+"-"+str(i["time"])[8:10]+":"+str(i["time"])[10:12] 
+                                for i in response["availBike"]]            
         
         #print(response)
         #encode chinese
@@ -121,8 +137,8 @@ class MongoAPI:
 
 if __name__ == "__main__":
     api = MongoAPI(IP = "172.19.0.20")
-    #data = api.queryDBdata("捷運內湖站(1號出口)")
-    data = api.queryDistrict("信義區")
+    data = api.queryDBdata("捷運內湖站(1號出口)")
+    #data = api.queryDistrict("信義區")
     #data = api.getDBdata()
     print(data)
 

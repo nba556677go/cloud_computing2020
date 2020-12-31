@@ -18,6 +18,25 @@ services:
             web_net:
                 aliases:
                 - webserver
+                
+    webserver-2:
+        image: webserver
+        container_name: webserver-2
+        build:
+            context: .
+            dockerfile: webserver/Dockerfile
+        #expose port -- host:container (not specifing host port -> random assign! )
+        #ports:
+        #    - "5000:5000"
+        #volume src path - relevant(must include ./) dest path - need absolute path!!
+        volumes:
+            - ./webserver:/opt
+        entrypoint: "python3 /opt/app.py" 
+        networks:
+            web_net:
+                aliases:
+                - webserver-2
+
     mongo-insert:
         image: webserver
         container_name: mongo-insert

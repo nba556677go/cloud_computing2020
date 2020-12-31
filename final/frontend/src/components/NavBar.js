@@ -4,7 +4,7 @@ import '../styles/NavBar.css'
 export default () => {
     return (
         <div className="navbar">
-            <h1>This is V1ncent's Youbike website!!</h1>
+            <h1>Find YourBike!!</h1>
         </div>
     )
 }
