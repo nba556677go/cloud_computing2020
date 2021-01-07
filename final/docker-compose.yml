@@ -37,6 +37,24 @@ services:
                 aliases:
                 - webserver-2
 
+    authserver:
+        image: authserver
+        container_name: authserver
+        build:
+            context: .
+            dockerfile: authserver/Dockerfile
+        #expose port -- host:container (not specifing host port -> random assign! )
+        ports:
+            - "5000:5000"
+        #volume src path - relevant(must include ./) dest path - need absolute path!!
+        volumes:
+            - ./authserver:/opt
+        entrypoint: "bash run" 
+        networks:
+            web_net:
+                aliases:
+                - authserver
+
     mongo-insert:
         image: webserver
         container_name: mongo-insert

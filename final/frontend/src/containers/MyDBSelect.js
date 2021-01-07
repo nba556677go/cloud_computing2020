@@ -17,7 +17,10 @@ class MyDBSelect extends React.Component {
     })
     .then(response => this.stations = response.data.chineseID )
     .then(() => {  this.setState({ refresh: true }) })//nees to call setstate to render page!!!
+  
   }
+
+ 
 
   // fetch data from our data base
   handleSelect = (e) => {
