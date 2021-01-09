@@ -32,7 +32,14 @@ def home():
 @app.route('/dashboard/')
 @login_required
 def dashboard():
+    print(session['user'])
     return render_template('dashboard.html')
+
+@app.route('/test/')
+@login_required
+def test():
+    print("OMFG")
+    return {'Hello': 'World'}
 
 if __name__ == "__main__":
     #DBinsert = threading.Thread(target=run)

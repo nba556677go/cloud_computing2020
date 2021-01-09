@@ -10,6 +10,7 @@ class User:
         session['logged_in'] = True
         session['user'] = user
         return jsonify(user), 200
+        #return redirect("http://140.112.28.115:3000", code=302)
 
     def signup(self):
         print(request.form)

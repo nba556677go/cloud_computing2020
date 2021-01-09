@@ -116,6 +116,7 @@ services:
         #volume src path - relevant(must include ./) dest path - need absolute path!!
         volumes:
             - ./frontend:/app
+        entrypoint: npm start
         networks:
             web_net:
                 aliases:

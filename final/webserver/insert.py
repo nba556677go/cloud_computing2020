@@ -37,7 +37,10 @@ def insert(fileID):
                 "chineseId" : v["sna"],
                 "totalBike" : int(v["tot"]),
                 "availBike" : int(v["sbi"]),
-                "district" : v["sarea"]
+                "district" : v["sarea"],
+                "lat" : float(v["lat"]),
+                "lng" : float(v["lng"])
+
             }
             #j_data = json.dumps(data)
             collection_Youbike.insert_one(data)
