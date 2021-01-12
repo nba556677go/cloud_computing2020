@@ -69,6 +69,17 @@ def getallChID():
     data = mongo.getallChID()
     print(data)
     return data
+#http://140.112.28.115:5001/getmapMarkers?latitude=25.021644799999997&&longtitude=121.5463424
+@app.route('/getmapMarkers')
+def getLatestData():
+    latitude = float(request.args.get('latitude', None))
+    longtitude = float(request.args.get('longtitude', None))
+    #print(latitude, longtitude)
+    mongo = MongoAPI(IP="mongo", DBname="myDB", collection="Youbike")
+    data = mongo.getLatestData(latitude, longtitude)
+    print("return map marker length", len(data['stationName']))
+
+    return data
 
 
 if __name__ == "__main__":

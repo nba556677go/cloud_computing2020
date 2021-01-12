@@ -6,5 +6,5 @@ export default () => {
         <div className="navbar">
             <h1>Find YourBike!!</h1>
         </div>
-    )
+    )   
 }

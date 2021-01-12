@@ -8,8 +8,8 @@ services:
             context: .
             dockerfile: webserver/Dockerfile
         #expose port -- host:container (not specifing host port -> random assign! )
-        #ports:
-        #    - "5000:5000"
+        ports:
+            - "5001:5000"
         #volume src path - relevant(must include ./) dest path - need absolute path!!
         volumes:
             - ./webserver:/opt
@@ -103,24 +103,24 @@ services:
             web_net:
                 aliases:
                 - mongo-express
-    frontend:
-        image: frontend
-        container_name: frontend
-        hostname: frontend
-        build:
-            context: .
-            dockerfile: frontend/Dockerfile
+    #frontend:
+    #    image: frontend
+    #    container_name: frontend
+    #    hostname: frontend
+    #    build:
+    #        context: .
+    #        dockerfile: frontend/Dockerfile
         #expose port -- host:container (not specifing host port -> random assign! )
-        ports:
-            - "3000:3000"
-        #volume src path - relevant(must include ./) dest path - need absolute path!!
-        volumes:
-            - ./frontend:/app
-        entrypoint: npm start
-        networks:
-            web_net:
-                aliases:
-                - frontend  
+    #    ports:
+    #        - "3000:3000"
+    #    #volume src path - relevant(must include ./) dest path - need absolute path!!
+    #    volumes:
+    #        - ./frontend:/app
+    #    entrypoint: npm start
+    #    networks:
+    #        web_net:
+    #            aliases:
+    #           - frontend  
     nginx:
         image: nginx:latest
         container_name: nginx

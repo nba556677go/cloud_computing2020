@@ -17,17 +17,7 @@ export class Home extends React.Component {
         this.sonResponse = this.sonResponse.bind(this);
     }
 
-    componentDidMount() {
-        if ("geolocation" in navigator) {
-          console.log("Available");
-          navigator.geolocation.getCurrentPosition((position) => {
-            console.log("Latitude is :", position.coords.latitude);
-            console.log("Longitude is :", position.coords.longitude);
-          }, () => {}, {timeout: 5000} );
-        } else {
-          console.log("Not Available");
-        }
-    }
+
     sonResponse (err, res) {
         if (err) {
             this.setState({ message: res })
