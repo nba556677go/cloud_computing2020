@@ -41,8 +41,8 @@ export class Home extends React.Component {
                 
                 <NavBar />
 
-                {/*<MapContainer />*/}  
-                <Map />      
+                <MapContainer />  
+                {/*<Map />*/}      
                     {/*      
                 <MapLoader
                     googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyCu6EE4kF1ad_hh5pJUU_MW5qjteMLOTy0"
