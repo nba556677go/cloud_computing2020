@@ -33,13 +33,20 @@ def home():
 @login_required
 def dashboard():
     print(session['user'])
-    return render_template('dashboard.html')
+    return redirect('http://140.112.28.115:3000', code=301)
 
 @app.route('/test/')
 @login_required
 def test():
     print("OMFG")
     return {'Hello': 'World'}
+
+@app.route('/frontend/')
+@login_required
+def frontend():
+    # return 'Frontend'
+    # return render_template('index.html')
+    return redirect('http://140.112.28.115:3000', code=301)
 
 if __name__ == "__main__":
     #DBinsert = threading.Thread(target=run)

@@ -10,7 +10,6 @@ class User:
         session['logged_in'] = True
         session['user'] = user
         return jsonify(user), 200
-        #return redirect("http://140.112.28.115:3000", code=302)
 
     def signup(self):
         print(request.form)
@@ -55,3 +54,13 @@ class User:
             return self.start_session(user)
         
         return jsonify({"error" : "Invalid login credentials"}), 401
+
+    def login_frontend(self):
+        user = db.users.find_one({
+            "email" : request.form.get('email')
+        })
+        
+        if user:
+            return self.start_session(user)
+        
+        return jsonify({"error" : "Invalid login frontend credentials"}), 402
