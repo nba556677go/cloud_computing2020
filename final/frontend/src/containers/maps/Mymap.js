@@ -2,12 +2,19 @@ import React from 'react';
 import { Map, GoogleApiWrapper, Marker, Circle } from 'google-maps-react';
 import axios from 'axios';
 import InfoWindow from './InfoWindow';
+import { FaBeer, FaCalculator } from 'react-icons/fa';
+import {
+  DirectionsRenderer
+} from "react-google-maps";
+
+import StationCards from '../../components/StationCards'
+import Card from 'react-bootstrap/Card'
+import ListGroup from 'react-bootstrap/ListGroup'
 
 
 
 const mapStyles = {
-  width: '80%',
-  height: '70%'
+  height: `1200px`, width: "60vw"
 };
 
 export class MapContainer extends React.Component {
@@ -26,9 +33,13 @@ export class MapContainer extends React.Component {
         {lat: 25.96233, lng: 112.80404},
       ],
 
-      showingDirection: false,
-      DirectionDisplay: null,
-      directions: null
+      showDirection: false,
+      directionInstructions: null,
+      directions: null,
+
+      showNearStations: false,
+      near_cords: [],
+      
       
     }
   }
@@ -78,8 +89,8 @@ export class MapContainer extends React.Component {
   parseMarkerLocations = async (data) => {
     //store max distance of nearest 10 bikes
     this.MaxDistance = data.MaxDistance
-    console.log(this.MaxDistance)
     let cordinates = []
+    let near_cords = []
     for(let i = 0 ; i < data.latitude.length ; i++){
       let isempty = false
       if(data.availBike[i] == 0 ){
@@ -92,22 +103,20 @@ export class MapContainer extends React.Component {
                        "availBike": data.availBike[i], "totalBike": data.totalBike[i],
                        "near" : data.near[i].near, "distance": parseInt(data.near[i].distance), "empty": isempty
                       });
+      if (data.near[i].near == 1){
+        near_cords.push({"lat" : data.latitude[i], "lng":data.longtitude[i],
+                         "stationID" : data.stationID[i], "stationName": data.stationName[i],
+                         "availBike": data.availBike[i], "totalBike": data.totalBike[i],
+                         "near" : data.near[i].near, "distance": parseInt(data.near[i].distance), "empty": isempty
+                        })
+      } 
       //console.log(data.near[i].distance)
     }
     
-    this.setState({stations: cordinates})
+    this.setState({stations: cordinates, showNearStations: true, near_cords: near_cords})
   }
   // map display helper functions
-  showMarkers = () => {
-    return this.state.stations.map((store, index) => {
-      return <Marker key={index} id={index} position={{
-       lat: store.lat,
-       lng: store.lng
-     }}
-     onClick={this.onMarkerClick} name={store.stationName} data={store} availBike={store.availBike} distance={store.distance}
-      />
-    })
-  }
+  
   showInfo = () => {
     const content = this.state.selectedPlace.data.map((key, index) =>
       <div key={index}>
@@ -118,6 +127,8 @@ export class MapContainer extends React.Component {
   }
 
   onMarkerClick = (props, marker) => {
+    console.log(props)
+    console.log(marker)
     this.setState({
       activeMarker: marker,
       selectedPlace: props,
@@ -155,14 +166,19 @@ export class MapContainer extends React.Component {
 
       
     //console.log(display)
-    data.routes[0].legs[0].steps.map((store, index) => {
-        //display.instructions.push(`keep going for ${store.duration.text} (${store.distance.text}), then ${store.instructions}`);
-        display.instructions.push(store.instructions)
+    data.routes[0].legs[0].steps.map((store, index) => {  
+        let tmp = document.createElement("DIV");
+        tmp.innerHTML = store.instructions;
+        let stripped_text = tmp.textContent || tmp.innerText || ""
+        //console.log(tmp.textContent || tmp.innerText || "");
+        display.instructions.push(`Keep going for ${store.duration.text} (${store.distance.text}), then ${stripped_text}`);
+        //display.instructions.push(store.instructions)
       }
     )
     
     console.log(display)
-    this.setState({DirectionDisplay: display})
+    console.log(data)
+    this.setState({showDirection: true, directionInstructions: display, directions: data})
   
 
 
@@ -174,8 +190,7 @@ export class MapContainer extends React.Component {
     
     const origin = { lat: this.state.liveLat, lng:  this.state.liveLng};
     const destination = { lat: dstLat, lng:  dstLng};
-    console.log(origin);
-    console.log(destination);
+    
     directionsService.route(
         {
             origin: origin,
@@ -186,9 +201,7 @@ export class MapContainer extends React.Component {
             if (status === google.maps.DirectionsStatus.OK) {
                 console.log(result)
                 this.parseDirections(result);
-                this.setState({
-                    directions: result
-                });
+               
             } else {
                 console.error(`error fetching directions ${result}`);
             }
@@ -208,12 +221,55 @@ export class MapContainer extends React.Component {
     this.parseDirections(res);
   }
 
+//show functions
+  
+  showMarkers = () => {
+  
+    return this.state.stations.map((store, index) => {
+      
+      return <Marker icon={{ url: "./icons/parking_lot_maps.png", origin: {x: 0, y: 0}}} 
+        key={index} id={index} position={{
+       lat: store.lat,
+       lng: store.lng
+     }}
+     onClick={this.onMarkerClick} name={store.stationName} data={store} availBike={store.availBike} distance={store.distance} lat={store.lat} lng={store.lng}  
+     label={{text: String(store.availBike), color: "#F00", fontFamily: "Arial"}} labelOrigin={(0,0)} 
+      />
+    })
+  }
+  showDirectionRenderer = () => {
+    if (this.state.showDirection){
+      return <DirectionsRenderer
+              directions={this.state.directions}
+             />
+    }
+  }
 
   render() {
-    let directions = this.state.DirectionDisplay
-    
+    //console.log(this.state.directions)
+
+    let directionDisplay = null;
+    if (this.state.showDirection){
+      /*
+      directionDisplay = (
+        <div id="footer" class="direction_instruction" style={{ width: '100%'}}>
+
+          <Card>
+            <ListGroup variant="flush">
+            {this.state.directionInstructions.instructions.map((item, index) => {
+                    return <ListGroup.Item style={{textAlign: "center"}}>{item}</ListGroup.Item>;
+             })}
+            </ListGroup>
+          </Card>
+        </div>
+      );
+      */
+     directionDisplay = <StationCards data={this.state.directionInstructions.instructions} show={this.state.showDirection}/>;
+    }
+    //console.log(directions)
     return (
-          <div>
+          <div style={{display: 'flex', flexDirection: "row", flexWrap: 'wrap', alignItems: 'stretch'}}>
+            <div style={mapStyles}>
             <Map
               google={this.props.google}
               zoom={16}
@@ -223,6 +279,7 @@ export class MapContainer extends React.Component {
                 lat: this.state.liveLat, 
                 lng: this.state.liveLng
             }}>
+             
               
               <Circle
                 radius={this.MaxDistance}
@@ -239,7 +296,14 @@ export class MapContainer extends React.Component {
               />
 
                 {this.showMarkers()}
-                
+                <Marker icon={"./icons/library_maps.png"} 
+                  position={{
+                    lat: this.state.liveLat,
+                    lng: this.state.liveLng
+                  }}
+                  onClick={this.onMarkerClick} name="Current" availBike={0} distance={0} lat={this.state.liveLat} lng={this.state.liveLng}
+                 
+                />
                 <InfoWindow
                   marker={this.state.activeMarker}
                   visible={this.state.showingInfoWindow}>
@@ -249,17 +313,21 @@ export class MapContainer extends React.Component {
                       
                       <h5>Available bikes: {this.state.selectedPlace.availBike}</h5>
                       <h5>Distance from you: {this.state.selectedPlace.distance}m</h5>
+                      <h6>cordinates:({this.state.selectedPlace.lat}, {this.state.selectedPlace.lng}) </h6>
                       
                       
                     </div>
                 </InfoWindow>
-              
 
-            
+                {this.showDirectionRenderer()}
             </Map>
-            <div>
-              <p>fsdf</p>
             </div>
+            
+            {/*<StationCards data={this.state.near_cords} show={this.state.showNearStations}/>*/}
+
+            {directionDisplay}
+           
+            
         </div>
         
       
@@ -271,3 +339,5 @@ export default GoogleApiWrapper({
   //enter your api key here
   apiKey: 'AIzaSyCu6EE4kF1ad_hh5pJUU_MW5qjteMLOTy0'
 })(MapContainer);
+
+
