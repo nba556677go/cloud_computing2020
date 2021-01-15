@@ -93,15 +93,16 @@ const CreateMap = (props) => {
   )
 }
 const WrappedMap =  withScriptjs(withGoogleMap(props =>  { 
-                          
+                          console.log(props.markerClicked);
                           console.log(props);
+                          if (props.stations.length)
                           return (
                           <GoogleMap
-                              
+                              defaultCenter={props.LiveLatLng}
                               zoom={13}
                               center={{lat: 25.021644799999997, lng: 121.5463424}}
                               >
-                              
+                              {Map.showMarkers(props.stations, props.markerClicked)}
                               
                             </GoogleMap >
                           );
@@ -122,8 +123,12 @@ class Map extends Component {
     
           liveLat: null,
           liveLng: null, 
-          stations: [
-            {lat: 25.96233, lng: 112.80404},
+          stations: [//init station
+            {lat: 25.96233, lng: 112.80404, 
+            stationID: -1, stationName: "init",
+            totalBike: 0, availBike: 0,
+            near: 0, distance: -1, 
+            empty: false},
           ],
     
           showDirection: false,
@@ -196,7 +201,7 @@ class Map extends Component {
         
 
         console.log("run didmount")
-        this.startDirections(25.021644799999997, 121.5463424)
+        //this.startDirections(25.021644799999997, 121.5463424)
         //const : method, not variable!(more like function)
         const getMarkers = async () => {
             //get live data
@@ -245,6 +250,18 @@ class Map extends Component {
           }
           
     }
+    shouldComponentUpdate(nextProps, nextState) {
+      //console.log(nextState)
+      if(this.state.stations === nextState.stations && this.state.selectedPlace === nextState.selectedPlace){
+        return false
+      }else{
+        return true
+      }
+      // If shouldComponentUpdate returns false, 
+      // then render() will be completely skipped until the next state change.
+      // In addition, componentWillUpdate and componentDidUpdate will not be called. 
+      
+    }
 
 
     parseMarkerLocations = async (data) => {
@@ -278,14 +295,15 @@ class Map extends Component {
     }
 
     // map display helper functions
-    showMarkers = (props) => {
-        //console.log(this.state.directions)
-        return this.state.stations.map((store, index) => {
+    static showMarkers = (markers, handleClick) => {
+        console.log(handleClick)
+        return markers.map((store, index) => {
+          //console.log(store)
           return <Marker key={index} id={index} position={{
             lat: store.lat,
             lng: store.lng
             }}
-            onClick={props.onToggleOpen}
+            onClick={handleClick(store)}
             name={store.stationName} data={store} availBike={store.availBike} distance={store.distance}
            >
 
@@ -311,12 +329,13 @@ class Map extends Component {
         console.log(event);
     }
 
-    onMarkerClick = (props, marker) => {
-      //console.log(marker)
+    onMarkerClick = (currentMarker) => {
+      //console.log(props)
+      //console.log(currentMarker)
       //console.log(props.store.lat, props.store.lng)
       this.setState({
-        activeMarker: marker,
-        selectedPlace: props.store,
+        activeMarker: currentMarker,  
+        selectedPlace: currentMarker,
         showingInfoWindow: true
       });
       console.log(this.state.selectedPlace)
@@ -338,7 +357,7 @@ class Map extends Component {
     };
 
     render() {
-              console.log(this.props)
+              //console.log(this.props)
               
               const MapWithAMakredInfoWindow = compose(
                 withStateHandlers(() => ({
@@ -370,7 +389,7 @@ class Map extends Component {
               );
               
               
-
+              
               return (
                   <div id="map">
                       <WrappedMap
@@ -379,12 +398,15 @@ class Map extends Component {
                         containerElement={<div style={{ height: `1200px`, width: "1500px" }} />}
                         mapElement={<div id="mapElement" style={{ height: `100%` }} />}
                         stations={this.state.stations}
+                        markerClicked={this.onMarkerClick}
+                        LiveLatLng={{ lat: this.state.liveLat, lng: this.state.liveLng}}
                         
                       />
                   </div>
 
 
               );
+            
     }
 }
 
